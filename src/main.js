@@ -7,6 +7,8 @@ import axios from 'axios'
 // 导入 Element-ui 库
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
+// 导入全局样式
+import '@/assets/global.less'
 
 Vue.config.productionTip = false
 // 设置 axios 的根路径

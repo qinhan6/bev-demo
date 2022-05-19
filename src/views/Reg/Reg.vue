@@ -16,8 +16,10 @@
         <el-form-item prop="repassword">
           <el-input prefix-icon="el-icon-lock" placeholder="请再次确认密码" v-model="regForm.repassword"></el-input>
         </el-form-item>
-        <el-button type="primary" style="width: 100%" @click="hReg">注册</el-button>
-        <el-link type="info" @click="$router.push('/login')">去登录</el-link>
+        <el-form-item>
+          <el-button type="primary" style="width: 100%" @click="hReg">注册</el-button>
+          <el-link type="info" @click="$router.push('/login')">去登录</el-link>
+        </el-form-item>
       </el-form>
     </div>
   </div>

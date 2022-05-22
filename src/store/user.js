@@ -10,7 +10,7 @@ export default {
       state.token = token
     },
     updataUserInfo (state, userinfo) {
-      state.userinfo = userinfo
+      state.userInfo = userinfo
     }
   },
   actions: {

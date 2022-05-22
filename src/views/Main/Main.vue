@@ -15,7 +15,7 @@
         <el-submenu index="1">
           <template slot="title">
             <!-- 头像 -->
-            <img v-if="userInfo.user_pic" :src="userInfo.user_pic" alt=""  class="avatar"/>
+            <img v-if="userInfo.user_pic" :src="userInfo.user_pic" alt="" class="avatar" />
             <img v-else src="../../assets/logo.png" alt="" class="avatar" />
             <span>个人中心</span>
           </template>
@@ -28,38 +28,36 @@
     </el-header>
     <el-container>
       <!-- 侧边栏区域 -->
-      <el-aside width="200px">
-        <div class="user-box">
-          <img v-if="userInfo.user_pic" :src="userInfo.user_pic" alt="" />
-          <img v-else src="../../assets/logo.png" alt="" />
-          <span>欢迎 {{userInfo.nickname || userInfo.username}}</span>
-        </div>
-        <el-menu
-          default-active="2"
-          class="el-menu-vertical-demo"
-          background-color="#23262E"
-          text-color="#fff"
-          active-text-color="#409EFF">
-          <template v-for="item in menus">
-            <el-submenu v-if="item.children" :index="item.indexPath" :key="item.  indexPath">
+        <el-aside width="200px">
+          <div class="user-box">
+            <img v-if="userInfo.user_pic" :src="userInfo.user_pic" alt="" />
+            <img v-else src="../../assets/logo.png" alt="" />
+            <span>欢迎 {{ userInfo.nickname || userInfo.username }}</span>
+          </div>
+
+          <el-menu
+            router
+            :default-active="$route.path"
+            class="el-menu-vertical-demo"
+            background-color="#23262E"
+            text-color="#fff"
+            active-text-color="#409EFF">
+            <template v-for="item in menus">
+              <el-submenu v-if="item.children" :index="item.indexPath" :key="item.indexPath">
               <template slot="title">
-                <i :class="item.icon"></i>
+                <i class="el-icon-location"></i>
                 <span>{{item.title}}</span>
               </template>
-              <el-menu-item-group v-for="child in item.children" :key="child.indexPath">
-                <el-menu-item :index="child.indexPath" >
-                  <i :class="child.icon"></i>
-                 <span>{{child.title}}</span>
-                  </el-menu-item>
-              </el-menu-item-group>
-            </el-submenu>
-            <el-menu-item v-else :index="item.indexPath" :key="item.indexPath">
-              <i :class="item.icon"></i>
+                <el-menu-item v-for="child in item.children" :key="child.indexPath" :index="child.indexPath">{{child.title}}</el-menu-item>
+              </el-submenu>
+              <el-menu-item v-else :index="item.indexPath" :key="item.indexPath">
+              <i class="el-icon-menu"></i>
               <span slot="title">{{item.title}}</span>
-            </el-menu-item>
-          </template>
-        </el-menu>
-      </el-aside>
+              </el-menu-item>
+            </template>
+          </el-menu>
+
+        </el-aside>
       <el-container>
         <!-- 页面主体区域 -->
         <el-main>
@@ -83,12 +81,12 @@ export default {
   },
   methods: {
     hLogout () {
-      this.$confirm('你确定要退出吗?', '提示', {
+      this.$confirm('确定退出吗?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$store.commit('user/updataToken', '')
+        this.$store.commit('user/updateToken', '')
         this.$router.push('/login')
       }).catch(() => {
       })
@@ -99,12 +97,12 @@ export default {
       this.menus = res.data
     }
   },
-  computed: {
-    ...mapState('user', ['userInfo', 'token'])
-  },
   async created () {
     await this.getMenus()
     this.$store.dispatch('user/getUserInfo')
+  },
+  computed: {
+    ...mapState('user', ['userInfo', 'token'])
   }
 }
 </script>

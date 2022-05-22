@@ -7,6 +7,7 @@ import Main from '@/views/Main/Main.vue'
 import Home from '@/views/Menus/Home/Home.vue'
 import UserInfo from '@/views/Menus/User/UserInfo.vue'
 import UserAvatar from '@/views/Menus/User/UserAvatar.vue'
+import UserPwd from '@/views/Menus/User/UserPwd.vue'
 
 Vue.use(VueRouter)
 
@@ -29,6 +30,10 @@ const routes = [
       {
         path: 'user-avatar',
         component: UserAvatar
+      },
+      {
+        path: 'user-pwd',
+        component: UserPwd
       }
     ]
   }

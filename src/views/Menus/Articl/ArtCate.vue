@@ -120,7 +120,7 @@ export default {
       // console.log(res)
       this.cateList = res.data
     },
-    hSubmit (id) {
+    hSubmit () {
       this.$refs.addForm.validate(async valid => {
         if (!valid) return
         const { data: res } = await this.$axios.post('/my/cate/add', this.addForm)
@@ -149,13 +149,16 @@ export default {
       })
     },
     hDel (id) {
-      // if (id === 1 || id === 2) return this.$message.warning('管理员不允许删除')
-      // this.$confirm('真的要删除吗?', '提示', {
-      //   type: 'warning'
-      // }).then(async () => {
-      //   const { data: res } =
-      // })
-      //   .catch(() => {})
+      if (id === 1 || id === 2) return this.$message.warning('管理员不允许删除')
+      this.$confirm('真的要删除吗?', '提示', {
+        type: 'warning'
+      }).then(async () => {
+        const { data: res } = await this.$axios.delete('/my/cate/del', { params: { id } })
+        if (res.code !== 0) return this.$message.error(res.message)
+        this.$message.success(res.message)
+        this.loadArtCate()
+      })
+        .catch(() => {})
     }
   }
 }

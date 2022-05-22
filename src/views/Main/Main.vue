@@ -63,7 +63,7 @@
       <el-container>
         <!-- 页面主体区域 -->
         <el-main>
-          Main.vue后台主页
+          <router-view></router-view>
         </el-main>
         <!-- 底部 footer 区域 -->
         <el-footer>© www.itheima.com - 黑马程序员</el-footer>
@@ -164,6 +164,15 @@ export default {
   span {
     color: white;
     font-size: 12px;
+  }
+}
+
+// 侧边栏菜单的样式
+.el-aside {
+  .el-submenu,
+  .el-menu-item {
+    width: 200px;
+    user-select: none;
   }
 }
 </style>

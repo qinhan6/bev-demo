@@ -142,8 +142,8 @@ export default {
       this.$refs.editForm.validate(async valid => {
         if (!valid) return
         const { data: res } = await this.$axios.put('/my/cate/info', this.editForm)
-        if (res.code !== 0) return this.$message.error(res.code)
-        this.$message.success(res.message)
+        if (res.code !== 0) return this.$message.error('修改失败')
+        this.$message.success('修改成功')
         this.loadArtCate()
         this.editVisible = false
       })

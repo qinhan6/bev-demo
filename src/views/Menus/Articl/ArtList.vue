@@ -9,8 +9,7 @@
         <el-form :inline="true" :model="q">
           <el-form-item label="文章分类">
             <el-select v-model="q.cate_id" placeholder="请选择分类" size="small">
-              <el-option label="区域一" value="shanghai"></el-option>
-              <el-option label="区域二" value="beijing"></el-option>
+              <el-option v-for="item in cateList" :key="item.id" :label="item.cate_name" :value="item.id"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="发布状态" style="margin-left: 15px;">
@@ -20,8 +19,8 @@
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" size="small">筛选</el-button>
-            <el-button type="info" size="small">重置</el-button>
+            <el-button type="primary" size="small" @click="loadArtList()">筛选</el-button>
+            <el-button type="info" size="small" @click="resetForm">重置</el-button>
           </el-form-item>
         </el-form>
         <!-- 发表文章的按钮 -->
@@ -30,7 +29,13 @@
 
       <!-- 文章表格区域 -->
       <el-table :data="artList" style="width: 100%;" border stripe>
-        <el-table-column label="文章标题" prop="title"></el-table-column>
+        <el-table-column label="文章标题" prop="title">
+          <template v-slot="{row}">
+            <el-link type="danger" @click="showDetail(row.id)">
+              {{row.title}}
+            </el-link>
+          </template>
+        </el-table-column>
         <el-table-column label="分类" prop="cate_name"></el-table-column>
         <el-table-column label="发表时间" prop="pub_date">
           <template v-slot="{ row }">
@@ -38,10 +43,24 @@
           </template>
         </el-table-column>
         <el-table-column label="状态" prop="state"></el-table-column>
-        <el-table-column label="操作"></el-table-column>
+        <el-table-column label="操作">
+          <template v-slot="{row}">
+            <el-button size="mini" type="danger" @click="hDel(row.id)">删除</el-button>
+          </template>
+        </el-table-column>
       </el-table>
 
       <!-- 分页区域 -->
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="q.pagenum"
+        :page-sizes="[2, 3, 5, 20]"
+        :page-size="q.pagesize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total">
+      </el-pagination>
+
       <el-dialog title="发表文章" :visible.sync="pubVisible" fullscreen :before-close="handleClose">
         <!-- 发布文章的对话框 -->
         <el-form :model="pubForm" :rules="pubRules" ref="pubForm" label-width="100px">
@@ -75,6 +94,29 @@
           </el-form-item>
         </el-form>
       </el-dialog>
+
+      <el-dialog
+        title="提示"
+        :visible.sync="showDetailVisible"
+        width="80%">
+        <h1 class="title">{{ artDetail.title }}</h1>
+
+        <div class="info">
+          <span>作者：{{ artDetail.nickname || artDetail.username }}</span>
+          <span>发布时间：{{ formatDate(artDetail.pub_date) }}</span>
+          <span>所属分类：{{ artDetail.cate_name }}</span>
+          <span>状态：{{ artDetail.state }}</span>
+        </div>
+
+        <!-- 分割线 -->
+        <el-divider></el-divider>
+
+        <!-- 文章的封面 -->
+        <img :src="'http://www.liulongbin.top:3008' + artDetail.cover_img" alt="" />
+
+        <!-- 文章的详情 -->
+        <div v-html="artDetail.content" class="detail-box"></div>
+      </el-dialog>
     </el-card>
   </div>
 </template>
@@ -86,13 +128,16 @@ export default {
   data () {
     return {
       pubVisible: false,
+      showDetailVisible: false,
       cateList: [],
       artList: [],
+      artDetail: {},
       preview: '',
+      total: 0,
       // 查询参数对象
       q: {
         pagenum: 1,
-        pagesize: 10,
+        pagesize: 2,
         cate_id: '',
         state: ''
       },
@@ -165,16 +210,55 @@ export default {
         this.pubVisible = false
         this.$refs.pubForm.resetFields()
         this.preview = ''
+        this.loadArtList()
       })
     },
     async loadArtList () {
       const { data: res } = await this.$axios.get('/my/article/list', { params: this.q })
       this.artList = res.data
+      this.total = res.total
       // console.log(this.artList)
     },
     formatDate (date) {
       // console.log(date)
       return dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+    },
+    handleSizeChange (val) {
+      this.q.pagesize = val
+      this.loadArtList()
+      this.q.pagenum = 1
+    },
+    handleCurrentChange (val) {
+      this.q.pagenum = val
+      this.loadArtList()
+    },
+    resetForm () {
+      this.q = {
+        pagenum: 1,
+        pagesize: 2,
+        cate_id: '',
+        state: ''
+      }
+      this.loadArtList()
+    },
+    async showDetail (id) {
+      const { data: res } = await this.$axios.get('/my/article/info', { params: { id } })
+      if (res.code !== 0) return
+      this.artDetail = res.data
+      this.showDetailVisible = true
+    },
+    hDel (id) {
+      this.$confirm('真的要删除吗?', '提示', {
+        type: 'warning'
+      }).then(async () => {
+        const { data: res } = await this.$axios.delete('/my/article/info', { params: { id } })
+        if (res.code !== 0) return this.$message.error(res.message)
+        this.$message.success(res.message)
+        if (this.artList.length === 1 && this.q.pagenum > 1) {
+          this.q.pagenum--
+        }
+        this.loadArtList()
+      }).catch(() => {})
     }
   },
   created () {
@@ -196,5 +280,27 @@ export default {
 
 /deep/ .ql-editor {
   height: 300px;
+}
+
+.title {
+  font-size: 24px;
+  text-align: center;
+  font-weight: normal;
+  color: #000;
+  margin: 0 0 10px 0;
+}
+
+.info {
+  font-size: 12px;
+  span {
+    margin-right: 20px;
+  }
+}
+
+// 修改 dialog 内部元素的样式，需要添加样式穿透
+/deep/ .detail-box {
+  img {
+    width: 500px;
+  }
 }
 </style>
